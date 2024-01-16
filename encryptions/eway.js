@@ -942,6 +942,27 @@ function eCrypt() {
 
 eCrypt.init();
 
-const dataToEncrypt = 'Sensitive Data';
-const encryptionKey = '0lqNJMR3V+AM77LFrg23srkpznqF3tyzOxvv6Cv0AZJZ9XCtZUQ39HYeM2WFY7z8HrIG6cSbIYtGyLjzGT+J6MyDQ1Lkyk+PNGlQO94bF0tCAYdpo8dCs5Rf2HzIrBCNI/afmux71n56GCgWvg6JJJ0H5r4X4QIJVcaVQXaCOtN39YvAagTqYd7pXUzvja5j7/WcytH3jf6eDZSjsDkZctYTgjqrSQc8hj9+IZGimmr98KaTWTV4MjnRp4qql1ObIc0Lga9cb6QMSIQo0nzS3draPye5mOm3SbjshJCwSr6wjMdTLZEhLdM3WclvI0S1xuP3yHPnnhb0Sd0+NqVgjQ==';
-console.log(eCrypt.encryptValue(dataToEncrypt, encryptionKey))
+// const encryptionKey = '0lqNJMR3V+AM77LFrg23srkpznqF3tyzOxvv6Cv0AZJZ9XCtZUQ39HYeM2WFY7z8HrIG6cSbIYtGyLjzGT+J6MyDQ1Lkyk+PNGlQO94bF0tCAYdpo8dCs5Rf2HzIrBCNI/afmux71n56GCgWvg6JJJ0H5r4X4QIJVcaVQXaCOtN39YvAagTqYd7pXUzvja5j7/WcytH3jf6eDZSjsDkZctYTgjqrSQc8hj9+IZGimmr98KaTWTV4MjnRp4qql1ObIc0Lga9cb6QMSIQo0nzS3draPye5mOm3SbjshJCwSr6wjMdTLZEhLdM3WclvI0S1xuP3yHPnnhb0Sd0+NqVgjQ==';
+// console.log(eCrypt.encryptValue(dataToEncrypt, encryptionKey))
+
+const eway = (ctx, key, data) => {
+    if(!key && !data) {
+        ctx.status = 400
+        ctx.body = {error: 'Missing or malformed data, please make sure the request body contains the following keys - key{string} and data{string || object}'}
+    }
+    if(typeof(data) === "string") {
+        ctx.status = 200
+        ctx.body = {encryptedData: eCrypt.encryptValue(data, key)}
+        return
+    }
+    let encryptedData = {}
+    for(val of Object.keys(data)) {
+        let dataToEncrypt = data[val];
+        let encrypted = eCrypt.encryptValue(dataToEncrypt, key)
+        encryptedData[`encrypted_${val}`] = encrypted
+    }
+    ctx.status = 200
+    ctx.body = encryptedData
+}
+
+module.exports = eway
